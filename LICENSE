@@ -1,4 +1,4 @@
-BSD 2-Clause License
+Modified BSD License with No-Storage clause
 
 Copyright (c) 2019, Leo Dirac
 All rights reserved.
@@ -12,6 +12,12 @@ modification, are permitted provided that the following conditions are met:
 2. Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
+
+3. All media content produced by this software must not be stored, archived 
+   nor transmitted electronically, except for immediate ephemeral display. 
+   Moreover any people whose likeness is modified by this software must be 
+   able to clearly and immediately see their modified likeness, and control 
+   any distribution of said modified media.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
