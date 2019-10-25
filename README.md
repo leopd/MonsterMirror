@@ -7,7 +7,7 @@ Set this up for your haunted house at Halloween!  Amuse your guests as their fac
 
 ## Status 
 
-The source code for this project has not yet been released. This project is a placeholder while I work out a license I'm comfortable with.
+The source code for this project has not yet been released. This project is a placeholder while I work out a license I'm comfortable with.  I expect to release the code Real-Soon-Now (TM) after I've gotten some knowledgeable feedback on the proposed [license](LICENSE).
 
 ## How does it work?
 
