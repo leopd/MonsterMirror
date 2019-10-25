@@ -3,6 +3,8 @@
 
 Set this up for your haunted house at Halloween!  Amuse your guests as their faces are dynamically transformed into different animals and monsters in front of their eyes.  Watch the animals' faces and expression change as yours does.  Feed it different example animals and monsters to see what it can generate.
 
+![Leo as a dog](samples/leo-dog.gif)
+
 ## Status 
 
 The source code for this project has not yet been released. This project is a placeholder while I work out a license I'm comfortable with.
