@@ -17,8 +17,6 @@ from timebudget import timebudget
 from .bbox import decode, nms
 from .net_s3fd import S3fd_Model
 
-from autojit import autojit
-
 # It's a trade-off.  Not really clear which is faster or why.
 # On CPU, all the time (~40ms) is spent moving the data from GPU to CPU. 
 # On GPU, all the time (~40ms) is spent on the *first* torch.nonzero for some reason.
@@ -51,7 +49,6 @@ def _process_bbox(i:torch.Tensor, ocls:torch.Tensor, oreg:torch.Tensor, hw:torch
     variances = torch.Tensor([0.1,0.2])
     return _process_bbox2(stride, anchor, score, loc, hindex, windex, variances)
 
-@autojit  # this gives a warning.  is it okay?
 def _process_bbox2(stride, anchor, score, loc, hindex, windex, variances):
     axc,ayc = stride/2+windex*stride,stride/2+hindex*stride
     priors = torch.cat([axc/1.0,ayc/1.0,stride*4/1.0,stride*4/1.0]).unsqueeze(0)
