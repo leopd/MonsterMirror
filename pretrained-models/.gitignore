@@ -1,0 +1,6 @@
+*.pt
+*.pth
+*.tgz
+*.tar.gz
+animal*
+s3fd_*

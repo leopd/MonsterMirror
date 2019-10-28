@@ -1,0 +1,9 @@
+torch
+torchvision
+numpy
+timebudget
+opencv-python
+gdown
+pillow
+pyyaml
+pytest
