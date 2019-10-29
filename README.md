@@ -28,7 +28,8 @@ It _should_ work on **Windows**, but I don't have a windows box to test it on.  
 Setting up the python dependencies can be done lots of ways.  I like using conda and pip:
 
 ```
-conda create -n  monster_mirror python=3.6
+conda create -n monster_mirror python=3.6
+conda activate monster_mirror
 pip install -r requirements.txt
 ```
 
@@ -42,6 +43,35 @@ Check that it's working with
 
 ```
 pytest
+```
+
+
+### Running it
+
+There are lots of (too many) options on the `localcam.py` file.  For some nice presets, try just running
+
+```
+./run-furry.sh  # animal faces
+```
+
+or
+
+```
+./run-furry.sh  # ghoulish monster look
+```
+
+You can modify each of these by adding extra arguments like
+
+```
+./run-furry.sh --no_full_screen --target_classes tiger,pomeranian
+```
+
+Drop your own images into new folders under the `target-images` directory to create new `target_classes`.  
+
+To really dive in, see the full set of options with
+
+```
+./run-furry.sh --help
 ```
 
 
