@@ -19,7 +19,7 @@ It will attempt to transform any faces it finds into "target" creatures you spec
 
 ### System requirements
 
-This has been tested on **Ubuntu** 18.04, and on **Mac OS X**.  It will run **much faster** with an **NVIDIA GPU** with CUDA to run the neural nets.  With a GPU, I see about 10 frames/sec (fps) which is fast enough to look like a mirror.  Without a GPU, I see about 1 fps on Ubuntu, and 0.2 fps on Mac.  
+This has been tested on **Ubuntu** 18.04, and on **Mac OS X**.  It will run **much faster** with an **NVIDIA GPU** with CUDA to run the neural nets.  With a GPU, I see about 10 frames/sec (fps) which is fast enough to look like a mirror.  Without a GPU, it will switch to a less accurate face detector model called a Haar cascade, and get maybe 1 fps.
 
 It _should_ work on **Windows**, but I don't have a windows box to test it on.  If you try it, [let me know](https://github.com/leopd/MonsterMirror/issues/1).  
 

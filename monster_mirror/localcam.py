@@ -58,7 +58,7 @@ def flip_img(img:np.ndarray) -> np.ndarray:
     """
     return img[:,::-1,:]
 
-def local_spooky(no_full_screen:bool, **kwargs):
+def local_spooky(no_full_screen:bool, camera_resolution:str='640x480', **kwargs):
     if not no_full_screen:
         for _ in range(10):
             print("Will run full screen.  Press SPACEBAR key to exit...\n\n")
@@ -68,6 +68,9 @@ def local_spooky(no_full_screen:bool, **kwargs):
     try:
         camera = cv2.VideoCapture(0)
         camera.set(cv2.CAP_PROP_FPS, 15)
+        cam_width, cam_height = [int(hw) for hw in camera_resolution.split('x')]
+        camera.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
+        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_height)
         start_time = time.time()
         frame_cnt = 0
         show_perf = True
@@ -84,6 +87,7 @@ def local_spooky(no_full_screen:bool, **kwargs):
                 print(f"------------ At frame {frame_cnt} average speed is {fps:.2f}fps")
                 timebudget.report('process_npimage')
             status_code, img = camera.read()
+            print(f"Captured image of shape {img.shape}")
             img = spookifier.process_npimage(img, None)
             flipped = flip_img(img)
             cv2.imshow('Spooky', flipped)
@@ -162,6 +166,10 @@ def parse_args():
         type=float,
         default=0.7,
         help='Max alpha to blend generated images back in with')
+    parser.add_argument('-cr', '--camera_resolution',
+        type=str,
+        default='640x480',
+        help='Resolution to capture images at. Turn this up if your hardware is amazing.')
     return parser.parse_args()
 
 
