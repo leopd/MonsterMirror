@@ -19,9 +19,12 @@ It will attempt to transform any faces it finds into "target" creatures you spec
 
 ### System requirements
 
-This has only been tested on Ubuntu 18.04.  It _might_ work on Windows.  If you try it, [let me know](https://github.com/leopd/MonsterMirror/issues/1).  
+This has only been tested on **Ubuntu** 18.04.  It requires an **NVIDIA GPU** with CUDA to run the neural nets fast enough to achieve sufficient frames per second to be real-time interactive.
 
-It definitely requires an **NVIDIA GPU** with CUDA to run the neural nets fast enough.
+It _might_ work on **Windows**.  If you try it, [let me know](https://github.com/leopd/MonsterMirror/issues/1).  
+
+It _should_ work on **Mac OS X** with some changes, but will run very slowly without CUDA.  See [this issue](https://github.com/leopd/MonsterMirror/issues/2) to track progress.
+
 
 ### Installing
 
@@ -35,7 +38,7 @@ pip install -r requirements.txt
 You must download the pre-trained models.  (Setup python first, since I use the `gdown` python library to download the GANimal model.)  To get the dependencies run
 
 ```
-download-pretrained.sh
+./download-pretrained.sh
 ```
 
 Check that it's working with
