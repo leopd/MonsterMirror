@@ -48,6 +48,7 @@ import torch.backends.cudnn as cudnn
 import torchvision
 from typing import Tuple
 
+from nntools.maybe_cuda import mbcuda
 from funit.utils import get_config
 from funit.trainer import Trainer
 from sfd_pytorch import S3fd_Model, detect_faces
@@ -83,13 +84,13 @@ class Spookifier():
         print("Loading face detector...")
         self.face_detect_model = S3fd_Model()
         self.face_detect_model.load_state_dict(torch.load(face_finder_model))
-        self.face_detect_model.cuda()
+        mbcuda(self.face_detect_model)
         self.face_detect_model.eval()
 
         print("Loading trainer...")
         config = get_config(config_file)
         self.trainer = Trainer(config)
-        self.trainer.cuda()
+        mbcuda(self.trainer)
         self.trainer.load_ckpt(funit_model)
         self.trainer.eval()
 
@@ -102,7 +103,7 @@ class Spookifier():
         self.target_embedding = self.target_embedding_from_images(target_image_folder)
 
     def set_color(self, R:float, G:float, B:float):
-        self.colorshift = torch.Tensor([[[R,G,B]]]).cuda()
+        self.colorshift = mbcuda(torch.Tensor([[[R,G,B]]]))
 
     def target_embedding_from_images(self, target_image_folder:str) -> torch.Tensor:
         images = os.listdir(target_image_folder)
@@ -113,7 +114,7 @@ class Spookifier():
                 continue  # .DS_Store or ._whatever
             fn = os.path.join(target_image_folder, f)
             img = Image.open(fn).convert('RGB')
-            img_tensor = self.transform(img).unsqueeze(0).cuda()
+            img_tensor = mbcuda(self.transform(img).unsqueeze(0))
             with torch.no_grad():
                 class_code = self.trainer.model.compute_k_style(img_tensor, 1)
                 if new_class_code is None:
@@ -256,13 +257,13 @@ class Spookifier():
             torchvision.transforms.ToTensor(),
         ])
         face = xforms(face128.cpu())
-        face = face.cuda()
+        face = mbcuda(face)
         face = face.permute(1,2,0) # CHW -> HWC
         face *= 255
         face = face[:, :, [2,1,0]]  # BGR to RGB
         face = self.mod_colors(face)
         alpha = self.prepare_alpha_mask_pt(h)
-        old = torch.Tensor(base[y:y+h, x:x+w]).cuda()
+        old = mbcuda(torch.Tensor(base[y:y+h, x:x+w]))
         blended = old * (1-alpha) + face * alpha
         base[y:y+h, x:x+w] = blended.cpu().numpy()
 
@@ -275,7 +276,7 @@ class Spookifier():
         """alpha_clamp # Smaller numbers mean harsher boarders, but using more of the generated image
         """
         # Some heuristic math to come up with an alpha mask to apply to the image before pasting it back in
-        line = torch.arange(-1, 1, 2/h, dtype=torch.float32, device='cuda').unsqueeze(0)
+        line = mbcuda(torch.arange(-1, 1, 2/h, dtype=torch.float32).unsqueeze(0))
         assert len(line.shape) == 2  # see https://github.com/pytorch/pytorch/issues/28347
         line = line[:,0:h]
         assert line.shape == (1,h)

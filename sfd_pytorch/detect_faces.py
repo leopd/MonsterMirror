@@ -16,6 +16,7 @@ from timebudget import timebudget
 
 from .bbox import decode, nms
 from .net_s3fd import S3fd_Model
+from nntools.maybe_cuda import mbcuda
 
 # It's a trade-off.  Not really clear which is faster or why.
 # On CPU, all the time (~40ms) is spent moving the data from GPU to CPU. 
@@ -53,8 +54,8 @@ def _process_bbox2(stride, anchor, score, loc, hindex, windex, variances):
     axc,ayc = stride/2+windex*stride,stride/2+hindex*stride
     priors = torch.cat([axc/1.0,ayc/1.0,stride*4/1.0,stride*4/1.0]).unsqueeze(0)
     if not use_cpu_for_decoding_bbox:
-        priors = priors.cuda()
-        variances = variances.cuda()
+        priors = mcuda(priors)
+        variances = mbcuda(variances)
     box = decode(loc,priors,variances)
     x1,y1,x2,y2 = box[0]*1.0
     return (x1,y1,x2,y2,score)
@@ -91,7 +92,7 @@ def olist_from_img(net:nn.Module, img:np.ndarray) -> List[torch.Tensor]:
     img = img.transpose(2, 0, 1)
     img = img.reshape((1,)+img.shape)
 
-    img = Variable(torch.from_numpy(img).float()).cuda()
+    img = mbcuda(Variable(torch.from_numpy(img).float()))
     olist = net(img)
     return olist
 

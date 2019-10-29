@@ -4,6 +4,8 @@ import os
 import pytest
 import torch
 
+from nntools.maybe_cuda import mbcuda
+
 from .detect_faces import detect_faces
 from .net_s3fd import S3fd_Model
 
@@ -15,7 +17,7 @@ def test_ellen_selfie():
     except:
         print("Failed to load pre-trained model for test")
         raise
-    model.cuda()
+    mbcuda(model)
     model.eval()
     with torch.no_grad():
         img = cv2.imread('samples/ellen-selfie.jpg')

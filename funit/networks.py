@@ -9,6 +9,8 @@ import torch
 from torch import nn
 from torch import autograd
 
+from nntools.maybe_cuda import mbcuda
+
 from .blocks import LinearBlock, Conv2dBlock, ResBlocks, ActFirstResBlock
 
 
@@ -64,14 +66,14 @@ class GPPatchMcResDis(nn.Module):
         assert(x.size(0) == y.size(0))
         feat = self.cnn_f(x)
         out = self.cnn_c(feat)
-        index = torch.LongTensor(range(out.size(0))).cuda()
+        index = mbcuda(torch.LongTensor(range(out.size(0))))
         out = out[index, y, :, :]
         return out, feat
 
     def calc_dis_fake_loss(self, input_fake, input_label):
         resp_fake, gan_feat = self.forward(input_fake, input_label)
-        total_count = torch.tensor(np.prod(resp_fake.size()),
-                                   dtype=torch.float).cuda()
+        total_count = mbcuda(torch.tensor(np.prod(resp_fake.size()),
+                                   dtype=torch.float))
         fake_loss = torch.nn.ReLU()(1.0 + resp_fake).mean()
         correct_count = (resp_fake < 0).sum()
         fake_accuracy = correct_count.type_as(fake_loss) / total_count
@@ -79,8 +81,8 @@ class GPPatchMcResDis(nn.Module):
 
     def calc_dis_real_loss(self, input_real, input_label):
         resp_real, gan_feat = self.forward(input_real, input_label)
-        total_count = torch.tensor(np.prod(resp_real.size()),
-                                   dtype=torch.float).cuda()
+        total_count = mbcuda(torch.tensor(np.prod(resp_real.size()),
+                                   dtype=torch.float))
         real_loss = torch.nn.ReLU()(1.0 - resp_real).mean()
         correct_count = (resp_real >= 0).sum()
         real_accuracy = correct_count.type_as(real_loss) / total_count
@@ -88,8 +90,8 @@ class GPPatchMcResDis(nn.Module):
 
     def calc_gen_loss(self, input_fake, input_fake_label):
         resp_fake, gan_feat = self.forward(input_fake, input_fake_label)
-        total_count = torch.tensor(np.prod(resp_fake.size()),
-                                   dtype=torch.float).cuda()
+        total_count = mbcuda(torch.tensor(np.prod(resp_fake.size()),
+                                   dtype=torch.float))
         loss = -resp_fake.mean()
         correct_count = (resp_fake >= 0).sum()
         accuracy = correct_count.type_as(loss) / total_count

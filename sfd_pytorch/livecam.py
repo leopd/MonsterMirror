@@ -10,6 +10,8 @@ import os,sys,cv2,random,datetime,time,math
 import argparse
 import numpy as np
 
+from nntools.maybe_cuda import mbcuda
+
 import net_s3fd
 from detect_faces import detect_faces
 
@@ -24,7 +26,7 @@ use_cuda = torch.cuda.is_available()
 
 net = getattr(net_s3fd,args.net)()
 net.load_state_dict(torch.load(args.model))
-net.cuda()
+mbcuda(net)
 net.eval()
 
 

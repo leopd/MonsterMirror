@@ -11,6 +11,8 @@ import torch
 import torch.backends.cudnn as cudnn
 from torchvision import transforms
 
+from nntools.maybe_cuda import mbcuda
+
 from .utils import get_config
 from .trainer import Trainer
 
@@ -41,7 +43,7 @@ config['batch_size'] = 1
 config['gpus'] = 1
 
 trainer = Trainer(config)
-trainer.cuda()
+mbcuda(trainer)
 trainer.load_ckpt(opts.ckpt)
 trainer.eval()
 
@@ -55,7 +57,7 @@ images = os.listdir(opts.class_image_folder)
 for i, f in enumerate(images):
     fn = os.path.join(opts.class_image_folder, f)
     img = Image.open(fn).convert('RGB')
-    img_tensor = transform(img).unsqueeze(0).cuda()
+    img_tensor = mbcuda(transform(img).unsqueeze(0))
     with torch.no_grad():
         class_code = trainer.model.compute_k_style(img_tensor, 1)
         if i == 0:

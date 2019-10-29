@@ -107,7 +107,10 @@ class Trainer(nn.Module):
                     'dis': self.dis_opt.state_dict()}, opt_name)
 
     def load_ckpt(self, ckpt_name):
-        state_dict = torch.load(ckpt_name)
+        if torch.cuda.is_available():
+            state_dict = torch.load(ckpt_name)
+        else:
+            state_dict = torch.load(ckpt_name, map_location=torch.device('cpu'))
         self.model.gen.load_state_dict(state_dict['gen'])
         self.model.gen_test.load_state_dict(state_dict['gen_test'])
 
