@@ -70,6 +70,7 @@ class Spookifier():
                     color_map:str='1,1,1',
                     scale_embedding:float=1.0,
                     max_alpha:float=0.7,
+                    face_detector_type:str='auto',
                 ):
         self.face_transform_cnt = 0
         self.grow_facebox = grow_facebox
@@ -81,11 +82,7 @@ class Spookifier():
         self.scale_embedding = scale_embedding
         self.max_alpha = max_alpha
 
-        print("Loading face detector...")
-        self.face_detect_model = S3fd_Model()
-        self.face_detect_model.load_state_dict(torch.load(face_finder_model))
-        mbcuda(self.face_detect_model)
-        self.face_detect_model.eval()
+        self.load_face_detector(face_detector_type, face_finder_model)
 
         print("Loading trainer...")
         config = get_config(config_file)
@@ -101,6 +98,32 @@ class Spookifier():
         self.transform = torchvision.transforms.Compose(transform_list)
 
         self.target_embedding = self.target_embedding_from_images(target_image_folder)
+
+    def load_face_detector(self, face_detector_type:str, face_finder_model:str):
+        if face_detector_type == 'auto':
+            if torch.cuda.is_available():
+                face_detector_type = 'cnn'
+            else:
+                face_detector_type = 'haar'
+
+        if face_detector_type == 'cnn':
+            print("Loading CNN face detector...")
+            self.face_cnn = True
+            self.face_detect_model = S3fd_Model()
+            self.face_detect_model.load_state_dict(torch.load(face_finder_model))
+            mbcuda(self.face_detect_model)
+            self.face_detect_model.eval()
+
+        elif face_detector_type == 'haar':
+            cv2_base_dir = os.path.dirname(os.path.abspath(cv2.__file__))
+            haar_model = os.path.join(cv2_base_dir, 'data/haarcascade_frontalface_default.xml')
+            print(f"Loading Haar face detector {haar_model}...")
+            self.face_cnn = False
+            self.haar_face_finder = cv2.CascadeClassifier(haar_model)
+
+        else:
+            raise RuntimeError(f"Unknown face_detector type {face_detector_type}. Must be auto, cnn, or haar.")
+
 
     def set_color(self, R:float, G:float, B:float):
         self.colorshift = mbcuda(torch.Tensor([[[R,G,B]]]))
@@ -208,12 +231,17 @@ class Spookifier():
 
     @timebudget
     def find_faces(self, img_np:np.ndarray) -> np.ndarray:
-        bboxes = detect_faces(self.face_detect_model, img_np, minscale=2, ovr_threshhold=0.3, score_threshhold=0.5)
-        out = []
-        for bb in bboxes:
-            x1, y1, x2, y2, _score = bb
-            out.append([x1, y1, (x2-x1), (y2-y1)])
-        return np.asarray(out)
+        if self.face_cnn:
+            bboxes = detect_faces(self.face_detect_model, img_np, minscale=2, ovr_threshhold=0.3, score_threshhold=0.5)
+            out = []
+            for bb in bboxes:
+                x1, y1, x2, y2, _score = bb
+                out.append([x1, y1, (x2-x1), (y2-y1)])
+            return np.asarray(out)
+        else:
+            with timebudget('haar face detector'):
+                gray = cv2.cvtColor(img_np, cv2.COLOR_BGR2GRAY)
+                return self.haar_face_finder.detectMultiScale(gray, 1.1, 4)
 
     @timebudget
     def process_npimage(self, img_np:np.ndarray, save_file:str='output/face.jpg') -> np.ndarray:

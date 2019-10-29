@@ -14,8 +14,17 @@ def test_random_noise():
     assert out_img.shape[1] == 640
 
 
-def test_ellen():
-    spookifier = spooky.RoundRobinSpookifier('target-images','meerkat', max_faces=6)
+def test_ellen_cnn():
+    spookifier = spooky.RoundRobinSpookifier('target-images','meerkat', max_faces=6, face_detector_type='cnn')
+    img = cv2.imread('samples/ellen-selfie.jpg')
+    out_img = spookifier.process_npimage(img, None)
+
+    assert spookifier.face_transform_cnt == 6
+    assert out_img.shape[0] == 480
+    #assert out_img.shape[1] == 640  #TODO figure out why this changes.
+
+def test_ellen_haar():
+    spookifier = spooky.RoundRobinSpookifier('target-images','meerkat', max_faces=6, face_detector_type='haar')
     img = cv2.imread('samples/ellen-selfie.jpg')
     out_img = spookifier.process_npimage(img, None)
 
