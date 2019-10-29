@@ -57,7 +57,7 @@ There are lots of (too many) options on the `localcam.py` file.  For some nice p
 or
 
 ```
-./run-furry.sh  # ghoulish monster look
+./run-spooky.sh  # ghoulish monster look
 ```
 
 You can modify each of these by adding extra arguments like
