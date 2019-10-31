@@ -1,7 +1,7 @@
 torch
 torchvision
 numpy
-timebudget
+timebudget>=0.7
 opencv-python
 gdown
 pillow

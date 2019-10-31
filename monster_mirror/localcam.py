@@ -53,12 +53,17 @@ import traceback
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import spooky
 
+
 def flip_img(img:np.ndarray) -> np.ndarray:
     """Mirror image left-right
     """
     return img[:,::-1,:]
 
+def clear_screen():
+    print("\033[H\033[J")  # clears display
+
 def local_spooky(no_full_screen:bool, camera_resolution:str='640x480', **kwargs):
+    timebudget.set_quiet()  # just print reports.
     if not no_full_screen:
         for _ in range(10):
             print("Will run full screen.  Press SPACEBAR key to exit...\n\n")
@@ -73,6 +78,7 @@ def local_spooky(no_full_screen:bool, camera_resolution:str='640x480', **kwargs)
         camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_height)
         start_time = time.time()
         frame_cnt = 0
+        recent_fps_time = None
         show_perf = True
         if no_full_screen:
             display = cv2.namedWindow("Spooky")
@@ -81,11 +87,16 @@ def local_spooky(no_full_screen:bool, camera_resolution:str='640x480', **kwargs)
             cv2.setWindowProperty("Spooky", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         while True:
             frame_cnt += 1
-            fps = frame_cnt / (time.time() - start_time)
+            total_fps = frame_cnt / (time.time() - start_time)
             if (frame_cnt % 3 == 0) and (show_perf):
-                print("\033[H\033[J")
-                print(f"------------ At frame {frame_cnt} average speed is {fps:.2f}fps")
-                timebudget.report('process_npimage')
+                if recent_fps_time:
+                    current_fps = 3 / (time.time() - recent_fps_time)
+                else:
+                    current_fps = float("nan")
+                recent_fps_time = time.time()
+                clear_screen()
+                print(f"------------ At frame {frame_cnt} getting {current_fps:.1f}fps. Avg is {total_fps:.2f}fps")
+                timebudget.report('process_npimage', reset=True)
             status_code, img = camera.read()
             print(f"Captured image of shape {img.shape}")
             img = spookifier.process_npimage(img, None)
